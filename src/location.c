@@ -17,9 +17,9 @@ void location_update(struct tm* t){
 void location_main(Window* window){
   // 都市名
   wl[CITY] = text_layer_create(GRect(0,168-14,144,14));
-	text_layer_set_background_color(wl[CITY],GColorClear);
+	text_layer_set_background_color(wl[CITY],TINA_BACKGROUND_COLOR);
 	text_layer_set_text_color(wl[CITY],TINA_FORGROUND_COLOR);
-	text_layer_set_text_alignment(wl[CITY], GTextAlignmentLeft); 
+	text_layer_set_text_alignment(wl[CITY], GTextAlignmentRight); 
 	text_layer_set_font(wl[CITY], fonts_get_system_font(FONT_KEY_GOTHIC_14));
 	text_layer_set_text(wl[CITY],"...");
 	layer_add_child(window_get_root_layer(window), text_layer_get_layer(wl[CITY]));

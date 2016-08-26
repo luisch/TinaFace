@@ -1,22 +1,27 @@
 #include <pebble.h>
 #include "tablet.h"
 
-static time_t last_updated = 0;
 static update_status update_state;
 
 // Store incoming information
 static char temperature_buffer[8];
-static char conditions_buffer[32];
+static char conditions_buffer[32] = "\ue010";
 static char city_name[64];
+static char wind_speed[15];
+static char weather_forecast[8];
 
 const char* tabletGetCurrentTemperature() {return temperature_buffer;};
 const char* tabletGetCurrentCondition()      {return conditions_buffer;}
 const char* tabletGetCurrentCityName()     {return city_name;}
+const char* tabletGetCurrentWind()            {return wind_speed;}
+const char* tabletGetForecast()      {return weather_forecast;}
 
 enum {
   KEY_TEMPERATURE = 0,
   KEY_CONDITIONS,
   KEY_CITY,
+  KEY_WINDSPEED,
+  KEY_FORECAST,
 };
 
 bool tabletPostMessage(const char* key){
@@ -31,13 +36,6 @@ update_status getUpdateStatus(){
 }
 
 void tablet_update(struct tm* t){
-/*  if(mktime(t) - last_updated > 15*60 && connection_service_peek_pebble_app_connection())
-  {
-    APP_LOG(APP_LOG_LEVEL_INFO, "request weather info");
-    if( tabletPostMessage("q")){
-      time(&last_updated);
-    }
-  }*/
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
@@ -45,17 +43,30 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   Tuple* t = NULL;
   if( NULL != (t = dict_find(iterator, KEY_TEMPERATURE)) ){
     APP_LOG(APP_LOG_LEVEL_INFO, "received a temperature");
-    snprintf(temperature_buffer, sizeof(temperature_buffer), "%2d C", t ? (int)t->value->int32 : 99);
+    snprintf(temperature_buffer, sizeof(temperature_buffer), "%s°", t ? t->value->cstring : "99.9");
+    persist_write_string(KEY_TEMPERATURE,temperature_buffer);
   }
   if( NULL !=(t = dict_find(iterator, KEY_CONDITIONS))){
     APP_LOG(APP_LOG_LEVEL_INFO, "received a conditions");
-    snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", t ? t->value->cstring : "?");
+    snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", t ? t->value->cstring : "\ue010");
+    persist_write_string(KEY_CONDITIONS,conditions_buffer);
+    update_state = state_updated;
   }
   if( NULL !=(t = dict_find(iterator, KEY_CITY))){
     APP_LOG(APP_LOG_LEVEL_INFO, "received a city name");
     snprintf(city_name, sizeof(city_name), "@%s", t ? t->value->cstring : "@?");
+    persist_write_string(KEY_CITY,city_name);
   }
-  update_state = state_updated;
+  if( NULL !=(t = dict_find(iterator, KEY_WINDSPEED))){
+    APP_LOG(APP_LOG_LEVEL_INFO, "received a wind speed");
+    snprintf(wind_speed, sizeof(wind_speed), "%sm", t ? t->value->cstring : "?");
+    persist_write_string(KEY_WINDSPEED,wind_speed);
+  }
+  if( NULL !=(t = dict_find(iterator, KEY_FORECAST))){
+    APP_LOG(APP_LOG_LEVEL_INFO, "received weather forecast");
+    snprintf(weather_forecast, sizeof(weather_forecast), "%s", t ? t->value->cstring : "");
+    persist_write_string(KEY_FORECAST,weather_forecast);
+  }
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
@@ -76,6 +87,12 @@ void tablet_main(Window* window){
   app_message_register_outbox_failed(outbox_failed_callback);
   app_message_register_outbox_sent(outbox_sent_callback);
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  
+  persist_read_string(KEY_TEMPERATURE,temperature_buffer,sizeof(temperature_buffer));
+  persist_read_string(KEY_CONDITIONS,conditions_buffer,sizeof(conditions_buffer));
+  persist_read_string(KEY_CITY,city_name,sizeof(city_name));
+  persist_read_string(KEY_WINDSPEED,wind_speed,sizeof(wind_speed));
+  persist_read_string(KEY_FORECAST,weather_forecast,sizeof(weather_forecast));
 }
 void tablet_exit(Window* window){
 }

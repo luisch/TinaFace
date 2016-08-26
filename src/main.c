@@ -4,6 +4,11 @@
 #include "tablet.h"
 #include "weather.h"
 
+static GFont font_pebble_icomoon[3];
+GFont getFontPebbleIcomoon36() { return font_pebble_icomoon[0]; }
+GFont getFontPebbleIcomoon24() { return font_pebble_icomoon[1]; }
+GFont getFontPebbleIcomoon14() { return font_pebble_icomoon[2]; }
+
 static void bluetooth_check(bool connected){
   static const uint32_t const pulse3[] = {185,95,185,95,185};
   static VibePattern off = {
@@ -27,6 +32,10 @@ static void update(struct tm *tick_time, TimeUnits units_changed){
 
 static void loadMainWindow(Window* w){
   APP_LOG(APP_LOG_LEVEL_INFO, "Loading main window");
+  font_pebble_icomoon[0] = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PEBBLE_ICOMOON_36));
+  font_pebble_icomoon[1] = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PEBBLE_ICOMOON_24));
+  font_pebble_icomoon[2] = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PEBBLE_ICOMOON_14));
+  
   watch_main(w);
   tablet_main(w);
   weather_main(w);

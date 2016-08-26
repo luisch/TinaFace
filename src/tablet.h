@@ -13,5 +13,7 @@ void tablet_update(struct tm *tick_time);
 const char* tabletGetCurrentTemperature();
 const char* tabletGetCurrentCondition();
 const char* tabletGetCurrentCityName();
+const char* tabletGetCurrentWind();
+const char* tabletGetForecast();
 
 update_status getUpdateStatus();

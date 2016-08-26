@@ -6,6 +6,7 @@ enum layer_names {
   TIME,
   DATE,
   CHARGE,
+  CONNECTION,
   LAYER_NUM
 };
 static TextLayer* wl[LAYER_NUM];
@@ -28,15 +29,21 @@ void watch_update(struct tm *tick_time){
   text_layer_set_text(wl[DATE],str_date);
   
   //バッテリー残量
-  static char str_battery[32];
+  static char* str_battery;
   BatteryChargeState charge_state = battery_state_service_peek();
   if( !charge_state.is_charging ){
-    snprintf(str_battery, sizeof(str_battery),  connection_service_peek_pebble_app_connection() ? "%d%%" : "%d%%[-]", charge_state.charge_percent);
+    if( charge_state.charge_percent < 25 ) { str_battery = "\ue00a";}
+    else if( charge_state.charge_percent < 50 ) { str_battery = "\ue00b";}
+    else if( charge_state.charge_percent < 75 ) { str_battery = "\ue00c";}
+    else { str_battery = "\ue00d";}
   }
   else {
-    snprintf(str_battery, sizeof(str_battery),  "[+]");
+    str_battery = "\ue00e";
   }
   text_layer_set_text(wl[CHARGE],str_battery);
+  
+  //bluetooth接続
+  text_layer_set_text(wl[CONNECTION], bluetooth_connection_service_peek() ? "":"\ue012");    
 }
 
 void watch_main(Window* window)
@@ -54,31 +61,40 @@ void watch_main(Window* window)
 	layer_add_child(main_layer, bitmap_layer_get_layer(image_layer));
   
   // 時刻表示レイヤー
-	wl[TIME] = text_layer_create(GRect(0,0,144,35));
+	wl[TIME] = text_layer_create(GRect(4,26,136,35));
 	text_layer_set_background_color(wl[TIME],TINA_BACKGROUND_COLOR);
 	text_layer_set_text_color(wl[TIME],TINA_FORGROUND_COLOR);
 	text_layer_set_text(wl[TIME],"--:--");
-	text_layer_set_font(wl[TIME], fonts_get_system_font(FONT_KEY_BITHAM_34_MEDIUM_NUMBERS));
+	text_layer_set_font(wl[TIME], fonts_get_system_font(FONT_KEY_LECO_28_LIGHT_NUMBERS));
 	text_layer_set_text_alignment(wl[TIME], GTextAlignmentRight); 
 	layer_add_child(main_layer, text_layer_get_layer(wl[TIME]));
 
   // 日付
-  wl[DATE] = text_layer_create(GRect(0,0,75,20));
-	text_layer_set_background_color(wl[DATE],GColorClear);
+  wl[DATE] = text_layer_create(GRect(4,55,136,20));
+	text_layer_set_background_color(wl[DATE],TINA_BACKGROUND_COLOR);
 	text_layer_set_text_color(wl[DATE],TINA_FORGROUND_COLOR);
 	text_layer_set_text(wl[DATE],"...");
 	text_layer_set_font(wl[DATE], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-	text_layer_set_text_alignment(wl[DATE], GTextAlignmentLeft); 
+	text_layer_set_text_alignment(wl[DATE], GTextAlignmentRight); 
 	layer_add_child(main_layer, text_layer_get_layer(wl[DATE]));
   
   // バッテリー残量
-  wl[CHARGE] = text_layer_create(GRect(0,20,55,15));
-	text_layer_set_background_color(wl[CHARGE],GColorClear);
+  wl[CHARGE] = text_layer_create(GRect(144-24,-3,32,24));
+	text_layer_set_background_color(wl[CHARGE],TINA_BACKGROUND_COLOR);
 	text_layer_set_text_color(wl[CHARGE],TINA_FORGROUND_COLOR);
 	text_layer_set_text(wl[CHARGE],"...");
-	text_layer_set_font(wl[CHARGE], fonts_get_system_font(FONT_KEY_GOTHIC_14));
+	text_layer_set_font(wl[CHARGE], getFontPebbleIcomoon24());
 	text_layer_set_text_alignment(wl[CHARGE], GTextAlignmentLeft); 
 	layer_add_child(main_layer, text_layer_get_layer(wl[CHARGE]));
+
+  // bluetooth接続
+  wl[CONNECTION] = text_layer_create(GRect(144-48,-3,24,24));
+	text_layer_set_background_color(wl[CONNECTION],TINA_BACKGROUND_COLOR);
+	text_layer_set_text_color(wl[CONNECTION],GColorRed);
+	text_layer_set_text(wl[CONNECTION],"");
+	text_layer_set_font(wl[CONNECTION], getFontPebbleIcomoon24());
+	text_layer_set_text_alignment(wl[CONNECTION], GTextAlignmentRight); 
+	layer_add_child(main_layer, text_layer_get_layer(wl[CONNECTION]));
 }
 
 void watch_exit(Window* window){

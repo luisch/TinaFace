@@ -1,0 +1,67 @@
+{
+    "author": "lui.mint+pebble@gmail.com",
+    "dependencies": {},
+    "keywords": [],
+    "name": "tinawatch",
+    "pebble": {
+        "capabilities": [
+            "location",
+            "configurable",
+            "health"
+        ],
+        "displayName": "TinaWatch",
+        "enableMultiJS": true,
+        "messageKeys": {
+            "KEY_CITY": 2,
+            "KEY_CONDITIONS": 1,
+            "KEY_FORECAST": 4,
+            "KEY_TEMPERATURE": 0,
+            "KEY_WINDSPEED": 3
+        },
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/pebble_background.png",
+                    "name": "IMAGE_BACKGROUND",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "fonts/icomoon.ttf",
+                    "name": "FONT_PEBBLE_ICOMOON_14",
+                    "targetPlatforms": null,
+                    "type": "font"
+                },
+                {
+                    "file": "fonts/icomoon.ttf",
+                    "name": "FONT_PEBBLE_ICOMOON_24",
+                    "targetPlatforms": null,
+                    "type": "font"
+                },
+                {
+                    "file": "fonts/icomoon.ttf",
+                    "name": "FONT_PEBBLE_ICOMOON_36",
+                    "targetPlatforms": null,
+                    "type": "font"
+                },
+                {
+                    "file": "images/tina.png",
+                    "menuIcon": true,
+                    "name": "IMAGE_BACKGROUND_1",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "basalt"
+        ],
+        "uuid": "0c665084-9fed-4100-a6a8-4aa69546ae16",
+        "watchapp": {
+            "watchface": true
+        }
+    },
+    "version": "1.0.0"
+}
