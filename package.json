@@ -44,13 +44,6 @@
                     "name": "FONT_PEBBLE_ICOMOON_36",
                     "targetPlatforms": null,
                     "type": "font"
-                },
-                {
-                    "file": "images/tina.png",
-                    "menuIcon": true,
-                    "name": "IMAGE_BACKGROUND_1",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
                 }
             ]
         },

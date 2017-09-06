@@ -6,7 +6,7 @@ static update_status update_state;
 // Store incoming information
 static char temperature_buffer[8];
 static char conditions_buffer[32] = "\ue010";
-static char city_name[64];
+static char city_name[150];
 static char wind_speed[15];
 static char weather_forecast[8];
 
@@ -93,6 +93,8 @@ void tablet_main(Window* window){
   persist_read_string(KEY_CITY,city_name,sizeof(city_name));
   persist_read_string(KEY_WINDSPEED,wind_speed,sizeof(wind_speed));
   persist_read_string(KEY_FORECAST,weather_forecast,sizeof(weather_forecast));
+  
+  tabletPostMessage("refresh");
 }
 void tablet_exit(Window* window){
 }

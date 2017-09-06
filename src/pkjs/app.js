@@ -54,18 +54,40 @@ function fetchLocation(pos){
      function(r2){
        console.log('get location info from yahoo api at '+pos);
        var json = JSON.parse(r2);
-       var city = json.Feature[0].Property.AddressElement[1];
-       var current_loc = city ? city.Name : json.Feature[0].Property.Country.Name;
-       if( current_loc != JSON.parse( localStorage.getItem("last-location") ) ){
+       var city = ".";
+       var current_loc = ".";
+       try {
+         city = json.Feature[0].Property.AddressElement[1].Name;
+         current_loc = city.Name;
+         
+         if( current_loc != JSON.parse( localStorage.getItem("last-location") ) ){
+           localStorage.setItem("last-location",JSON.stringify(current_loc));
+           sendData2Pebble({
+             'KEY_CITY': city,
+           });
+           update_gps_timeout = 60*5*1000; // GPSアップデート頻度を元に戻す
+         }
+         else{
+           console.log('pebble has remained in the neighborhood');
+           update_gps_timeout = Math.min(update_gps_timeout*2, update_gps_timeout_max); // GPSアップデート頻度を落とす
+         }
+       }
+       catch(e) {
+         current_loc = pos;
+         if( json.ResultInfo.Count > 0 ){
+           console.log('pebble is over seas.');
+           city = json.Feature[0].Property.Country.Name;
+         }
+         else {
+           console.log('pebble is public seas.');
+           city = "公海";
+         }
          localStorage.setItem("last-location",JSON.stringify(current_loc));
          sendData2Pebble({
-           'KEY_CITY': city ? city.Name : json.Feature[0].Property.Country.Name,
+           'KEY_CITY': city,
          });
-         update_gps_timeout = 60*5*1000; // GPSアップデート頻度を元に戻す
-       }
-       else{
-         console.log('pebble has remained in the neighborhood');
-         update_gps_timeout = Math.min(update_gps_timeout*2, update_gps_timeout_max); // GPSアップデート頻度を落とす
+         update_gps_timeout = 60*60*1000; // GPSアップデート頻度を海外仕様にする
+         localStorage.removeItem("last-position");
        }
      });
 }
